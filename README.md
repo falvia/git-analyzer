@@ -43,3 +43,11 @@ For easier repeated use, you can create a configuration file named `config.ini` 
 repo_urls = [https://github.com/torvalds/linux.git,https://github.com/kubernetes/kubernetes.git](https://github.com/torvalds/linux.git,https://github.com/kubernetes/kubernetes.git)
 company_identifier = @linux.com # Or a name like 'Linus Torvalds'
 months_back = 12
+
+## TODO
+
+- Able to avoid to clone everytime in tmp directory and check if the repo is already downloaded and just pull all the changes.
+- Use openai rest api to create a more consistent description of the work done in each project.
+- Group the changes by Author and by Topic using for the topic the AI and commit messages information.
+- Create a tool to post on social media like linkedin, X and facebook
+- Add all amarula opensource projects
