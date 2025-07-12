@@ -1,0 +1,46 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Temporary files created by the script
+# The script uses tempfile.mkdtemp() which creates directories like /tmp/tmpXXXXXX
+# These are usually cleaned up automatically, but adding a general temp directory pattern is good.
+tmp/
+temp/
+*.tmp
+
+# Output files
+# If the script saves the generated article, it might be named something like git_report.md
+*.md
+*.txt
+
+# Configuration files
+# It's good practice to ignore config files that might contain sensitive info or
+# are specific to a local environment.
+config.ini
+*.ini
+
+# Logs
+*.log
+
