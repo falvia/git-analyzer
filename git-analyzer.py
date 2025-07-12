@@ -3,7 +3,8 @@ import shutil
 import datetime
 import subprocess
 import tempfile
-import random # Still used for random author names in simulated commits for LLM input
+import random
+import configparser
 
 def analyze_real_git_commits(repo_urls: list[str], company_identifier: str, months_back: int) -> dict:
     """
@@ -194,33 +195,80 @@ This overview highlights the continuous effort and innovation from our developme
 """
     return article_content
 
+def load_config_from_ini(file_path: str) -> dict | None:
+    """
+    Loads configuration from an INI file.
+
+    Args:
+        file_path: The path to the INI configuration file.
+
+    Returns:
+        A dictionary containing the configuration, or None if the file cannot be read.
+    """
+    config = configparser.ConfigParser()
+    try:
+        config.read(file_path)
+        git_config = {}
+        if 'GitConfig' in config:
+            git_config['repo_urls'] = [url.strip() for url in config['GitConfig'].get('repo_urls', '').split(',') if url.strip()]
+            git_config['company_identifier'] = config['GitConfig'].get('company_identifier', '').strip()
+            git_config['months_back'] = config['GitConfig'].getint('months_back', None)
+        return git_config
+    except Exception as e:
+        print(f"Error reading INI file {file_path}: {e}")
+        return None
+
 def main():
     """
     Main function to run the Git commit analysis and article generation tool.
+    Supports optional configuration from an INI file.
     """
     print("--- Git Commit Article Generator (Standalone - Real Git Operations) ---")
     print("This tool will attempt to clone and analyze real Git repositories.")
 
-    repo_urls_input = input("Enter Git repository URLs (comma-separated, e.g., https://github.com/org/repo1.git,https://github.com/org/repo2.git): ")
-    repo_urls = [url.strip() for url in repo_urls_input.split(',') if url.strip()]
+    repo_urls = []
+    company_identifier = ""
+    months_back = None
+
+    use_config_file = input("Do you want to load configuration from an INI file? (yes/no): ").lower().strip()
+
+    if use_config_file == 'yes':
+        config_file_path = input("Enter the path to your INI configuration file (e.g., config.ini): ").strip()
+        config_data = load_config_from_ini(config_file_path)
+
+        if config_data:
+            repo_urls = config_data.get('repo_urls', [])
+            company_identifier = config_data.get('company_identifier', '')
+            months_back = config_data.get('months_back', None)
+            print(f"Configuration loaded from {config_file_path}.")
+        else:
+            print("Failed to load configuration from file. Proceeding with manual input.")
+
+    # Prompt for missing or unconfigured values
+    if not repo_urls:
+        repo_urls_input = input("Enter Git repository URLs (comma-separated, e.g., https://github.com/org/repo1.git,https://github.com/org/repo2.git): ")
+        repo_urls = [url.strip() for url in repo_urls_input.split(',') if url.strip()]
 
     if not repo_urls:
         print("No repository URLs provided. Exiting.")
         return
 
-    company_identifier = input("Enter your company identifier (e.g., @mycompany.com or 'My Company Name'): ").strip()
+    if not company_identifier:
+        company_identifier = input("Enter your company identifier (e.g., @mycompany.com or 'My Company Name'): ").strip()
+
     if not company_identifier:
         print("Company identifier cannot be empty. Exiting.")
         return
 
-    while True:
-        try:
-            months_back = int(input("Enter number of months back to analyze (e.g., 3): ").strip())
-            if months_back <= 0:
-                raise ValueError
-            break
-        except ValueError:
-            print("Invalid input. Please enter a positive integer for months.")
+    if months_back is None:
+        while True:
+            try:
+                months_back = int(input("Enter number of months back to analyze (e.g., 3): ").strip())
+                if months_back <= 0:
+                    raise ValueError
+                break
+            except ValueError:
+                print("Invalid input. Please enter a positive integer for months.")
 
     print("\nStarting real Git analysis...")
     # Step 1: Perform real Git commit analysis
