@@ -1,0 +1,45 @@
+# Git Commit Article Generator (Standalone Python)
+
+This Python script is a command-line tool designed to help you generate a blog article summarizing recent Git commits from one or more repositories, specifically filtering for commits made by your company. It supports both manual input and configuration via an INI file.
+
+## Features
+
+* **Real Git Operations**: Clones specified Git repositories and analyzes their commit history.
+
+* **Company-Specific Filtering**: Identifies commits made by a specified company identifier (e.g., email domain or author name).
+
+* **Time-Based Analysis**: Filters commits within a configurable number of past months.
+
+* **Multi-Repository Support**: Processes multiple Git repositories in a single run.
+
+* **Article Generation**: Generates a summary article based on the analyzed commits.
+
+* **INI File Configuration (Optional)**: Allows you to configure repository URLs, company identifier, and months to analyze using an INI file, making repeated runs easier.
+
+* **Output to Console & File**: Prints the generated article to the console and offers to save it to a Markdown file.
+
+## Prerequisites
+
+Before running this tool, ensure you have the following installed on your system:
+
+* **Python 3.x**: The script is written in Python 3. You can download it from [python.org](https://www.python.org/downloads/).
+
+* **Git**: The command-line Git client must be installed and accessible in your system's PATH. You can download Git from [git-scm.com](https://git-scm.com/downloads).
+
+## How to Use
+
+### 1. Save the Script
+
+Save the provided Python code as a `.py` file (e.g., `git_analyzer.py`).
+
+### 2. (Optional) Create an INI Configuration File
+
+For easier repeated use, you can create a configuration file named `config.ini` (or any other name you prefer) in the same directory as your Python script.
+
+**Example `config.ini`:**
+
+```ini
+[GitConfig]
+repo_urls = [https://github.com/torvalds/linux.git,https://github.com/kubernetes/kubernetes.git](https://github.com/torvalds/linux.git,https://github.com/kubernetes/kubernetes.git)
+company_identifier = @linux.com # Or a name like 'Linus Torvalds'
+months_back = 12
