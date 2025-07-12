@@ -43,6 +43,7 @@ For easier repeated use, you can create a configuration file named `config.ini` 
 repo_urls = [https://github.com/torvalds/linux.git,https://github.com/kubernetes/kubernetes.git](https://github.com/torvalds/linux.git,https://github.com/kubernetes/kubernetes.git)
 company_identifier = @linux.com # Or a name like 'Linus Torvalds'
 months_back = 12
+```
 
 ## TODO
 
