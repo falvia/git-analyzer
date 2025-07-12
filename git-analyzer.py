@@ -3,7 +3,6 @@ import shutil
 import datetime
 import subprocess
 import tempfile
-import random
 import configparser
 import argparse
 
