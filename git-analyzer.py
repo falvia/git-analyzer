@@ -183,6 +183,7 @@ Here's a breakdown of key contributions by repository:
             for commit in repo['commits']:
                 # Ensure the message is handled, even if it's empty or malformed
                 first_line_message = commit['message'].split('\n')[0] if commit['message'] else "(No message)"
+                first_line_message = first_line_message.replace("_", r"\_")
                 article_content += f"- **{commit['author_name']}** on {commit['date'].split('T')[0]}: {first_line_message}\n"
             article_content += "\n"
         else:
