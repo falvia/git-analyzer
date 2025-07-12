@@ -5,6 +5,7 @@ import subprocess
 import tempfile
 import random
 import configparser
+import argparse
 
 def analyze_real_git_commits(repo_urls: list[str], company_identifier: str, months_back: int) -> dict:
     """
@@ -210,7 +211,8 @@ def load_config_from_ini(file_path: str) -> dict | None:
         config.read(file_path)
         git_config = {}
         if 'GitConfig' in config:
-            git_config['repo_urls'] = [url.strip() for url in config['GitConfig'].get('repo_urls', '').split(',') if url.strip()]
+            repo_urls_str = config['GitConfig'].get('repo_urls', '')
+            git_config['repo_urls'] = [url.strip() for url in repo_urls_str.split(',') if url.strip()]
             git_config['company_identifier'] = config['GitConfig'].get('company_identifier', '').strip()
             git_config['months_back'] = config['GitConfig'].getint('months_back', None)
         return git_config
@@ -221,32 +223,74 @@ def load_config_from_ini(file_path: str) -> dict | None:
 def main():
     """
     Main function to run the Git commit analysis and article generation tool.
-    Supports optional configuration from an INI file.
+    Supports optional configuration from an INI file and command-line arguments.
     """
-    print("--- Git Commit Article Generator (Standalone - Real Git Operations) ---")
-    print("This tool will attempt to clone and analyze real Git repositories.")
+    parser = argparse.ArgumentParser(description="Generate a blog article summarizing Git commits from repositories.")
+    parser.add_argument(
+        '-r', '--repo-urls',
+        help='Comma-separated list of Git repository URLs.',
+        type=str
+    )
+    parser.add_argument(
+        '-c', '--company-identifier',
+        help='String to identify company commits (e.g., email domain or "My Company Name").',
+        type=str
+    )
+    parser.add_argument(
+        '-m', '--months-back',
+        help='Number of months back to analyze commits.',
+        type=int
+    )
+    parser.add_argument(
+        '-f', '--config-file',
+        help='Path to an INI configuration file. If provided and successfully loaded, it will override other core parameters (-r, -c, -m).',
+        type=str
+    )
+    parser.add_argument(
+        '-s', '--save-to-file',
+        help='Automatically save the generated article to a file (provide filename).',
+        type=str,
+        nargs='?', # Allows the argument to be optional, if present without value, it's None
+        const='git_report.md' # Default value if -s is present without an argument
+    )
+
+    args = parser.parse_args()
 
     repo_urls = []
     company_identifier = ""
     months_back = None
+    save_file_name = None
 
-    use_config_file = input("Do you want to load configuration from an INI file? (yes/no): ").lower().strip()
+    config_loaded_successfully = False
 
-    if use_config_file == 'yes':
-        config_file_path = input("Enter the path to your INI configuration file (e.g., config.ini): ").strip()
-        config_data = load_config_from_ini(config_file_path)
-
+    # Attempt to load from INI file if specified
+    if args.config_file:
+        config_data = load_config_from_ini(args.config_file)
         if config_data:
             repo_urls = config_data.get('repo_urls', [])
             company_identifier = config_data.get('company_identifier', '')
             months_back = config_data.get('months_back', None)
-            print(f"Configuration loaded from {config_file_path}.")
+            config_loaded_successfully = True
+            print(f"Configuration loaded from {args.config_file}.")
         else:
-            print("Failed to load configuration from file. Proceeding with manual input.")
+            print(f"Warning: Failed to load configuration from {args.config_file}. Proceeding with command-line arguments or prompts.")
 
-    # Prompt for missing or unconfigured values
+    # If config file was NOT successfully loaded, or not provided, then use CLI args
+    if not config_loaded_successfully:
+        if args.repo_urls:
+            repo_urls = [url.strip() for url in args.repo_urls.split(',') if url.strip()]
+        if args.company_identifier:
+            company_identifier = args.company_identifier.strip()
+        if args.months_back is not None:
+            months_back = args.months_back
+
+    # The save_to_file argument always takes precedence from CLI
+    if args.save_to_file is not None:
+        save_file_name = args.save_to_file
+
+    # 3. Prompt for missing values (lowest priority)
     if not repo_urls:
-        repo_urls_input = input("Enter Git repository URLs (comma-separated, e.g., https://github.com/org/repo1.git,https://github.com/org/repo2.git): ")
+        repo_urls_input = input("Enter Git repository URLs (comma-separated, e.g., https://github.com/org/repo1.git,https://github.com/org/repo2.git): ").strip()
         repo_urls = [url.strip() for url in repo_urls_input.split(',') if url.strip()]
 
     if not repo_urls:
@@ -287,18 +331,26 @@ def main():
     print(article)
     print("\n--- End of Article ---")
 
-    save_option = input("\nDo you want to save the article to a file? (yes/no): ").lower().strip()
-    if save_option == 'yes':
-        file_name = input("Enter desired filename (e.g., git_report.md): ").strip()
-        if not file_name:
-            file_name = "git_report.md"
+    # Handle saving to file based on CLI arg or prompt
+    if save_file_name:
         try:
-            with open(file_name, 'w', encoding='utf-8') as f:
+            with open(save_file_name, 'w', encoding='utf-8') as f:
                 f.write(article)
-            print(f"Article saved to {file_name}")
+            print(f"Article automatically saved to {save_file_name}")
         except Exception as e:
-            print(f"Error saving file: {e}")
+            print(f"Error automatically saving file {save_file_name}: {e}")
+    else:
+        save_option = input("\nDo you want to save the article to a file? (yes/no): ").lower().strip()
+        if save_option == 'yes':
+            file_name = input("Enter desired filename (e.g., git_report.md): ").strip()
+            if not file_name:
+                file_name = "git_report.md"
+            try:
+                with open(file_name, 'w', encoding='utf-8') as f:
+                    f.write(article)
+                print(f"Article saved to {file_name}")
+            except Exception as e:
+                print(f"Error saving file: {e}")
 
 if __name__ == "__main__":
     main()
-
