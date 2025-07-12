@@ -179,7 +179,7 @@ Here's a breakdown of key contributions by repository:
         if "error" in repo:
             article_content += f"**Error processing this repository:** {repo['error']}\n\n"
         elif repo['commits']:
-            article_content += "Our team has made the following notable commits:\n"
+            article_content += "Our team has made the following notable commits:\n\n"
             for commit in repo['commits']:
                 # Ensure the message is handled, even if it's empty or malformed
                 first_line_message = commit['message'].split('\n')[0] if commit['message'] else "(No message)"
