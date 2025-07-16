@@ -86,4 +86,3 @@ python main.py -f amarula/config.ini -s report.md
 ## TODO
 
 - Create a tool to post on social media like linkedin, X and facebook
-- Add all amarula opensource projects
