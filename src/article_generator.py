@@ -50,7 +50,10 @@ Here's a breakdown of key contributions by repository:
             continue
 
         for author_name, author_commits in sorted(commits_by_author.items()):
-            all_author_messages = "\n".join([commit["message"] if commit["message"] else "(No message)"])
+            all_author_messages = "\n".join([
+                    commit["message"] if commit["message"] else "(No message provided)"
+                    for commit in author_commits
+                ])
 
             if openai_key:
                 ai_summary = summarize_commit_messages(openai_key, all_author_messages,
